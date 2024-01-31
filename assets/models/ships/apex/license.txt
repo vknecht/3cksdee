@@ -1,0 +1,11 @@
+Model Information:
+* title:	Apex Wipeout Anti-grav Racer
+* source:	https://sketchfab.com/3d-models/apex-wipeout-anti-grav-racer-fb146041f58d4f1aa09d15f32a541352
+* author:	rafta (https://sketchfab.com/rafta)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Apex Wipeout Anti-grav Racer" (https://sketchfab.com/3d-models/apex-wipeout-anti-grav-racer-fb146041f58d4f1aa09d15f32a541352) by rafta (https://sketchfab.com/rafta) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)

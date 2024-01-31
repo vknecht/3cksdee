@@ -1,0 +1,52 @@
+[gd_scene load_steps=5 format=3 uid="uid://c2iiasde7658f"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_yntfb"]
+
+[sub_resource type="Sky" id="Sky_0gk6r"]
+sky_material = SubResource("ProceduralSkyMaterial_yntfb")
+
+[sub_resource type="Environment" id="Environment_qv5ob"]
+background_mode = 2
+sky = SubResource("Sky_0gk6r")
+
+[sub_resource type="Curve3D" id="Curve3D_k4ib4"]
+bake_interval = 0.01
+_data = {
+"points": PackedVector3Array(4.39407, -7.15256e-07, -0.0335851, -4.39407, 7.15256e-07, 0.0335851, 0, 0, 0, -1.68857, -3.05176e-05, 3.30431, 1.68857, 3.05176e-05, -3.30431, 0, 0, -15, -1.84947, -0.0475333, 0.503689, 1.84947, 0.0475333, -0.503689, 14.3319, 0, -21.1656, -0.512619, 0, -1.53074, 0.512619, 0, 1.53074, 18.8877, 0, -18.3182, 0.1224, 0, -2.81631, 0, 0, 0, 19.4178, 0, -14.4163, 0, 0, 0.264, -0.0210114, 0, -0.264183, 19, 0, 2.466, 0, 0, 0, 0, 0, 0, 19.4817, -3.42628e-06, 16.6475, 2.40764, -5.72205e-06, -1.50668, -2.40764, 5.72205e-06, 1.50668, 16.4338, 0, 23.5138, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 3.151, 6.283, 0, 0)
+}
+point_count = 9
+
+[node name="Track2" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_qv5ob")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+
+[node name="Path3D" type="Path3D" parent="." groups=["Path"]]
+curve = SubResource("Curve3D_k4ib4")
+
+[node name="PathFollow3D" type="PathFollow3D" parent="Path3D" groups=["PathFollow"]]
+transform = Transform3D(-0.00764307, 1.62768e-07, 0.999971, 7.10543e-15, 1, -1.62773e-07, -0.999971, -1.24408e-09, -0.00764307, 0, 0, 0)
+
+[node name="CSGPolygon3D" type="CSGPolygon3D" parent="."]
+use_collision = true
+polygon = PackedVector2Array(-1, 0, -1, 0.01, 1, 0.01, 1, 0)
+mode = 2
+path_node = NodePath("../Path3D")
+path_interval_type = 0
+path_interval = 0.25
+path_simplify_angle = 0.0
+path_rotation = 2
+path_local = false
+path_continuous_u = true
+path_u_distance = 1.0
+path_joined = true
+smooth_faces = true
+
+[node name="Node3D" type="Node3D" parent="." groups=["Checkpoints"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 17.7902, 0.0442826, -19.118)
+
+[node name="Node3D2" type="Node3D" parent="." groups=["Start"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.23981, 0.0442826, 5.21588)

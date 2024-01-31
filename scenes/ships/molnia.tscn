@@ -1,0 +1,48 @@
+[gd_scene load_steps=7 format=3 uid="uid://c47sk8qqrl00w"]
+
+[ext_resource type="Script" path="res://scenes/player/Player.gd" id="1_wrmxj"]
+[ext_resource type="PackedScene" uid="uid://bruuxjgug77n0" path="res://assets/models/ships/molnia/scene.gltf" id="2_vtu2w"]
+[ext_resource type="AudioStream" uid="uid://d331uslqyklh5" path="res://assets/sounds/thud.ogg" id="3_de1ca"]
+[ext_resource type="AudioStream" uid="uid://e7dg11of3js1" path="res://assets/sounds/114497__flash_shumway__piep.mp3" id="4_612gt"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_lcnxh"]
+friction = 0.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_raxac"]
+size = Vector3(0.230797, 0.0972519, 0.666305)
+
+[node name="Molnia" type="RigidBody3D"]
+collision_layer = 2
+collision_mask = 2
+mass = 10.0
+physics_material_override = SubResource("PhysicsMaterial_lcnxh")
+gravity_scale = 0.0
+continuous_cd = true
+max_contacts_reported = 1
+contact_monitor = true
+linear_damp = 5.0
+angular_damp = 5.0
+script = ExtResource("1_wrmxj")
+
+[node name="Mesh" parent="." instance=ExtResource("2_vtu2w")]
+transform = Transform3D(-2.18557e-09, 0, -0.05, 0, 0.05, 0, 0.05, 0, -2.18557e-09, 0, -0.0589534, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.00139982, 0.0449669, 0.0774458)
+shape = SubResource("BoxShape3D_raxac")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.295817, 0.755684)
+
+[node name="Ray" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.00627362, 0)
+
+[node name="CollisionSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_de1ca")
+bus = &"SFX"
+
+[node name="TimeoutSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_612gt")
+bus = &"SFX"
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

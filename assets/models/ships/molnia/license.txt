@@ -1,0 +1,11 @@
+Model Information:
+* title:	Futuristic racing car - "Molnia"
+* source:	https://sketchfab.com/3d-models/futuristic-racing-car-molnia-738a78a4c9154614b90029bf8bb80d61
+* author:	TuppsM (https://sketchfab.com/TuppsM)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Futuristic racing car - "Molnia"" (https://sketchfab.com/3d-models/futuristic-racing-car-molnia-738a78a4c9154614b90029bf8bb80d61) by TuppsM (https://sketchfab.com/TuppsM) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
