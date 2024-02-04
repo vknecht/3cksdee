@@ -4,10 +4,12 @@ var players = []
 var level
 var lap_count: int
 
+var do_fps
 var separation = 0
 var do_vibrate = true
 var vibrate_force = 100
 var do_music = true
+var do_debug_finish
 
 # FIXME: don't hardcode all possible colors...
 var playerColors = [Color(Color.RED), Color(Color.BLUE), Color(Color.GREEN),
@@ -24,14 +26,20 @@ func scan(directory, extension, dict = {}, recurse = true):
 		dir.list_dir_begin()
 		var file_name = dir.get_next()
 		while file_name != "":
+			print(" found %s" % file_name)
+			# Exporting add .remap to scene filenames and .import to ogg filenames
+			file_name = file_name.trim_suffix(".remap")
+			file_name = file_name.trim_suffix(".import")
 			if dir.current_is_dir() and recurse:
 				dict = scan(dir.get_current_dir() + "/" + file_name, extension, dict)
 			elif extension and file_name.ends_with(extension):
 				var fname = file_name.get_basename()
 				dict[fname] = {
+					"directory": directory,
 					"filename": file_name,
 					"fullpath": directory + "/" + file_name,
 				}
+				print("  found %s" % dict[fname]["fullpath"])
 			file_name = dir.get_next()
 	return dict
 

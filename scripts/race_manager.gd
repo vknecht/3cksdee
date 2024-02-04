@@ -4,6 +4,8 @@ signal opponent_finished(node)
 signal opponent_set_timeout(node, value, autostart)
 signal opponent_start_timer()
 signal opponent_set_rank(node, rank, count, lap, laps)
+signal race_reset()
+signal race_ended()
 
 @onready var raceStatus = RaceState.WAITING
 @onready var sfxPlayer = AudioStreamPlayer.new()
@@ -23,11 +25,11 @@ enum RaceState { WAITING, STARTED, ENDED }
 enum OpponentState { WAITING, WARMUP, RACING, FAILED, FINISHED }
 
 func add_opponent(node: Node3D): #(id : int):
+	var nextcp = 1
+	if Globals.do_debug_finish:
+		nextcp = 0
 	opponents.push_back({ "node": node, "id": node.player_id, "lap": 1,
-						  "state": OpponentState.WAITING, "nextcp": 1,
-	#					  "state": OpponentState.WAITING, "nextcp": 0, # Use this line to test finish
-						  "laptimes": [] })
-
+						  "state": OpponentState.WAITING, "nextcp": nextcp, "laptimes": [] })
 	node.warmup.connect(on_opponent_warmup)
 	node.failed.connect(on_opponent_failed)
 
@@ -52,6 +54,8 @@ func add_checkpoint(path: Path3D, node : Node3D):
 		node.passed.connect(on_checkpoint_passed)
 
 func _ready():
+	if Globals.do_debug_finish:
+		laps = 1
 	sfxPlayer.bus = &"SFX"
 	add_child(sfxPlayer)
 
@@ -89,7 +93,6 @@ func on_startline_passed(cpnode: Node3D, id: int):
 		return
 	if opponents[id].nextcp == 0:
 		# A lap was completed, save lap time
-		#var raceTime = raceCurrentTime - raceStartTime
 		var laptimes = opponents[id]["laptimes"]
 		if laptimes.size() > 0:
 			# This was not the first lap, so substract previous lap times
@@ -108,11 +111,13 @@ func on_startline_passed(cpnode: Node3D, id: int):
 			emit_signal("opponent_finished", opponents[id].node, raceCurrentTime, opponents[id]["laptimes"])
 			# Check if race has ended (all opponents finished or failed)
 			for opp in opponents:
-				if opp.state != OpponentState.FINISHED || OpponentState.FAILED:
-					return
-				raceStatus = RaceState.ENDED
-				print("RaceManager: race ended with %d (id = %s) crossing startline" % [opponents[id].node, id])
-				# TODO: gotta emit some signal, right ?
+				print("RaceManager: startline: opp %s state = %s" % [opp.node, opp.state])
+				match opp.state:
+					OpponentState.RACING:
+						return
+			raceStatus = RaceState.ENDED
+			print("RaceManager: race ended with %s (id = %s) crossing startline" % [opponents[id].node, id])
+			emit_signal("race_ended")
 			return
 		opponents[id].lap += 1
 		on_checkpoint_passed(cpnode, id)
@@ -131,6 +136,15 @@ func on_opponent_warmup(node: Node3D):
 			return
 	
 	print("RaceManager: All opponents in WARMUP, get READY !")
+	race_ready()
+
+func race_warmup():
+	print("RaceManager: race_warmup !")
+	for opp in opponents:
+		opp.state = OpponentState.WARMUP
+		print("RaceManager: WARMUP %s" % opp.node)
+		emit_signal("opponent_set_timeout", opp.node, checkpoints[1].timeout, false)
+	await get_tree().create_timer(1.0).timeout
 	race_ready()
 
 func race_ready():
@@ -161,3 +175,28 @@ func on_opponent_failed(node: Node3D, id: int, reason: String):
 	# All opponents have either finished or failed, signal end of race
 	print("RaceManager: race ended because %s failed (%s) !" % [node, reason])
 	raceStatus = RaceState.ENDED
+	emit_signal("race_ended")
+
+func reset_race():
+	print("RaceManager: *** reset race ***")
+	raceStatus = RaceState.WAITING
+	for opp in opponents:
+		opp.state = OpponentState.WAITING
+		opp.lap = 1
+		opp.nextcp = 1
+		opp.laptimes = []
+		# FIXME: Reparenting should not be in race_manager.gd
+		match opp.node.get_parent().get_class():
+			"PathFollow3D":
+				# Reparent the ship to the subviewport, cleanup the path & pathfollow
+				var pf = opp.node.get_parent()
+				var pathd = pf.get_parent()
+				var subvp = pathd.get_parent()
+				opp.node.reparent(subvp)
+				opp.node.set_owner(get_tree().edited_scene_root)
+				Globals.set_children_scene_root(opp.node)
+				pf.queue_free()
+				pathd.queue_free()
+	emit_signal("race_reset")
+	await get_tree().create_timer(1.0).timeout
+	race_warmup()

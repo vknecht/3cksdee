@@ -6,21 +6,14 @@ var playlist = []
 
 func _ready():
 	_player.bus = "Music"
-	var dir = DirAccess.open("res://assets/music/")
-	if dir:
-		dir.include_hidden = false
-		dir.include_navigational = false
-		dir.list_dir_begin()
-		var file_name = dir.get_next()
-		while file_name != "":
-			if file_name.ends_with(".ogg"):
-				playlist.append(file_name)
-			file_name = dir.get_next()
+	playlist = Globals.scan("res://assets/music", "ogg", {}, false)
+	print(playlist)
 
 func playany():
 	randomize()
-	var song = playlist[randi() % playlist.size()]
-	play("res://assets/music/" + song)
+	var keys = playlist.keys()
+	var song = playlist[keys[randi() % playlist.size()]]
+	play(song.fullpath)
 
 # Calling this function will load the given track, and play it
 func play(track_url : String):

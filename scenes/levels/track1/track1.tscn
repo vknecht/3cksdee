@@ -65,7 +65,7 @@ curve = SubResource("Curve3D_gp00b")
 [node name="Spawn" type="Node3D" parent="Path3D"]
 
 [node name="PathFollow3D" type="PathFollow3D" parent="Path3D" groups=["PathFollow"]]
-transform = Transform3D(-0.0422394, -0.211836, 0.976387, 0, 0.977264, 0.212024, -0.999101, 0.00895585, -0.0412791, -29.1623, 0.44812, -85.6246)
+transform = Transform3D(-0.0422396, -0.211836, 0.976392, 0, 0.977264, 0.212025, -0.999107, 0.00895585, -0.0412793, -29.1623, 0.44812, -85.6246)
 use_model_front = true
 
 [node name="Track" type="CSGPolygon3D" parent="."]

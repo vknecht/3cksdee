@@ -60,6 +60,7 @@ text = "Quit"
 
 [node name="Versions" type="VBoxContainer" parent="HBoxContainer/VBoxContainer"]
 layout_mode = 2
+size_flags_vertical = 10
 
 [node name="Version" type="Label" parent="HBoxContainer/VBoxContainer/Versions"]
 unique_name_in_owner = true
@@ -79,7 +80,6 @@ size_flags_horizontal = 3
 
 [node name="OptionsMenu" type="Control" parent="HBoxContainer/CenterContainer"]
 unique_name_in_owner = true
-visible = false
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/CenterContainer/OptionsMenu"]
@@ -100,6 +100,17 @@ custom_minimum_size = Vector2(500, 0)
 layout_mode = 2
 theme_override_constants/v_separation = 32
 columns = 2
+
+[node name="FPSLabel" type="Label" parent="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 32
+text = "Show FPS"
+
+[node name="FPS" type="CheckButton" parent="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 2
 
 [node name="FullscreenLabel" type="Label" parent="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer"]
 layout_mode = 2
@@ -228,6 +239,18 @@ focus_neighbor_bottom = NodePath("../../DoneOptions")
 focus_next = NodePath("../../DoneOptions")
 focus_previous = NodePath("../MusicVolume")
 
+[node name="DebugFinishLabel" type="Label" parent="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Debug finish"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DebugFinish" type="CheckButton" parent="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 0
+
 [node name="DoneOptions" type="Button" parent="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -243,6 +266,7 @@ text = "Done"
 [connection signal="pressed" from="HBoxContainer/VBoxContainer/Buttons/MultiLocal" to="." method="_on_multi_local_pressed"]
 [connection signal="pressed" from="HBoxContainer/VBoxContainer/Buttons/Options" to="." method="_on_options_pressed"]
 [connection signal="pressed" from="HBoxContainer/VBoxContainer/Buttons/Exit" to="." method="_on_exit_pressed"]
+[connection signal="toggled" from="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer/FPS" to="." method="_on_fps_toggled"]
 [connection signal="toggled" from="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer/Fullscreen" to="." method="_on_fullscreen_toggled"]
 [connection signal="value_changed" from="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer/Separation" to="." method="_on_separation_value_changed"]
 [connection signal="toggled" from="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer/Vibration" to="." method="_on_vibration_toggled"]
@@ -251,4 +275,5 @@ text = "Done"
 [connection signal="value_changed" from="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer/MasterVolume" to="." method="_on_master_volume_value_changed"]
 [connection signal="value_changed" from="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer/MusicVolume" to="." method="_on_music_volume_value_changed"]
 [connection signal="value_changed" from="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer/SFXVolume" to="." method="_on_sfx_volume_value_changed"]
+[connection signal="toggled" from="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer/DebugFinish" to="." method="_on_debug_finish_toggled"]
 [connection signal="pressed" from="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/DoneOptions" to="." method="_on_done_pressed"]

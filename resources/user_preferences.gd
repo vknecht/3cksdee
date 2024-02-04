@@ -1,5 +1,6 @@
 class_name UserPreferences extends Resource
 
+@export var fps: bool = false
 @export var fullscreen: bool = false
 @export_range(0, 20, 1) var separation: int = 0
 @export var vibrate: bool = true
@@ -8,6 +9,7 @@ class_name UserPreferences extends Resource
 @export_range(0, 100, 1) var volume_master: int = 100
 @export_range(0, 100, 1) var volume_music: int = 100
 @export_range(0, 100, 1) var volume_sfx: int = 100
+@export var debug_finish: bool = false
 
 func save() -> void:
 	ResourceSaver.save(self, "user://user_prefs.tres")

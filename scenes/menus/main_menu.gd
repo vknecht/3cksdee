@@ -4,6 +4,7 @@ extends MarginContainer
 ### https://docs.godotengine.org/en/3.0/getting_started/step_by_step/ui_main_menu.html
 ### Options menu from @16BitDev after https://youtu.be/QnEG01t2P9M
 ### User preferences settings from @Game Dev Artisan after https://youtu.be/GPzdFzNq060
+@onready var fps = %FPS
 @onready var fullscreen = %Fullscreen
 @onready var separation = %Separation
 @onready var vibration = %Vibration
@@ -12,6 +13,7 @@ extends MarginContainer
 @onready var volume_master = %MasterVolume
 @onready var volume_music = %MusicVolume
 @onready var volume_sfx = %SFXVolume
+@onready var debug_finish = %DebugFinish
 @onready var version = %Version
 @onready var godotver = %GodotVersion
 
@@ -20,6 +22,8 @@ var user_prefs: UserPreferences
 func _ready():
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE) 
 	user_prefs = UserPreferences.load_or_create()
+	if fps:
+		fps.button_pressed = user_prefs.fps
 	if fullscreen:
 		fullscreen.button_pressed = user_prefs.fullscreen
 	if separation:
@@ -36,8 +40,11 @@ func _ready():
 		volume_music.value = user_prefs.volume_music
 	if volume_sfx:
 		volume_sfx.value = user_prefs.volume_sfx
+	if debug_finish:
+		debug_finish.button_pressed = user_prefs.debug_finish
 	version.text = ProjectSettings.get_setting("application/config/version")
 	godotver.text =  "Godot " + Engine.get_version_info().string
+	%OptionsMenu.visible = false
 	%MultiLocal.grab_focus()
 
 func _process(_delta):
@@ -63,6 +70,15 @@ func _on_done_pressed():
 	%Buttons.visible = true
 	%OptionsMenu.visible = false
 	%Options.grab_focus()
+
+func _on_fps_toggled(toggled_on):
+	if toggled_on:
+		Globals.do_fps = true
+	else:
+		Globals.do_fps = false
+	if user_prefs:
+		user_prefs.fps = toggled_on
+		user_prefs.save()
 
 func _on_fullscreen_toggled(toggled_on):
 	if toggled_on:
@@ -117,6 +133,12 @@ func _on_sfx_volume_value_changed(value):
 	adjust_volume("SFX", value)
 	if user_prefs:
 		user_prefs.volume_sfx = value
+		user_prefs.save()
+
+func _on_debug_finish_toggled(toggled_on):
+	Globals.do_debug_finish = toggled_on
+	if user_prefs:
+		user_prefs.debug_finish = toggled_on
 		user_prefs.save()
 
 # Convert a linear scale value to decibels for the audio bus volume.

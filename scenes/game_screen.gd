@@ -6,14 +6,26 @@ extends Node
 var paths
 var starts
 var checkpoints
+var shipStarts
 var raceManager
 
+func _process(_delta):
+	if Globals.do_fps:
+		%FPS.text = "%s FPS" % Performance.get_monitor(Performance.TIME_FPS)
+
 func _ready():
+	%QuitRestart.visible = false
 	add_child(levelScene)
-	paths = get_tree().get_nodes_in_group("Path")
-	starts = get_tree().get_nodes_in_group("Start")
+	paths = get_tree().get_nodes_in_group("Path")	# Only the first matters
+	starts = get_tree().get_nodes_in_group("Start")	# idem
 	checkpoints = get_tree().get_nodes_in_group("Checkpoints")
+	# Compute ships start positions along the center of the track
+	# FIXME: don't hardcode left/right displacement, use track (and ships ?) width
+	shipStarts = Globals.find_curve_start_points(paths[0], starts[0].position, \
+												 Globals.players.size(), 0.5)
 	raceManager = rm.new()
+	raceManager.race_reset.connect(self.on_race_reset)
+	raceManager.race_ended.connect(self.on_race_ended)
 	add_child(raceManager)
 	
 	# Set splitscreen grid separation pixels according to the Options setting
@@ -23,42 +35,50 @@ func _ready():
 	
 	# FIXME? Move start & checkpoints setup to raceManager ?
 	# Set start nodes direction/orientation to be the same as closest Curve3D point
-	for start in starts:
-		var t = Globals.find_closest_curve_transform(paths[0], start.position)
-		start.global_transform.basis = t.basis
-		start.position = t.origin + Vector3(0, 0.1, 0)
-		var cpScene = checkpointScene.instantiate()
-		cpScene.global_transform = start.global_transform
-		levelScene.add_child(cpScene)
-		raceManager.add_checkpoint(paths[0], cpScene) #starts[0])
+	#for start in starts:
+	var t = Globals.find_closest_curve_transform(paths[0], starts[0].position)
+	starts[0].global_transform.basis = t.basis
+	starts[0].position = t.origin + Vector3(0, 0.1, 0)
+	var cpScene = checkpointScene.instantiate()
+	cpScene.global_transform = starts[0].global_transform
+	levelScene.add_child(cpScene)
+	raceManager.add_checkpoint(paths[0], cpScene)
 	
 	for cp in checkpoints:
 		cp.global_transform = Globals.find_closest_curve_transform(paths[0], cp.position)
-		var cpScene = checkpointScene.instantiate()
+		cpScene = checkpointScene.instantiate()
 		cpScene.global_transform = cp.global_transform
 		levelScene.add_child(cpScene)
 		raceManager.add_checkpoint(paths[0], cpScene)
-	
-	var shipStarts = Globals.find_curve_start_points(paths[0], starts[0].position, Globals.players.size(), 0.5)
 	
 	for player in Globals.players:
 		# Load player ship, instantiate, assign input device and subviewport
 		var shipName = PlayerManager.get_player_data(player.id, "ship")
 		var shipScene = load("res://scenes/ships/%s.tscn" % [shipName]).instantiate()
+		player["scene"] = shipScene
 		shipScene.set_id(player.id)
 		shipScene.set_input(player.device)
 		subvp[player.id].add_child(shipScene)
-		# Place ship on start "grid"
-		# FIXME: don't necessarily place ships depending on their player id
-		shipScene.global_transform = shipStarts[player.id]
-		shipScene.global_transform.origin += Vector3(0, 0.1, 0)
 		raceManager.opponent_set_timeout.connect(shipScene.on_opponent_set_timeout)
 		raceManager.opponent_start_timer.connect(shipScene.on_opponent_start_timer)
 		raceManager.opponent_finished.connect(shipScene.on_opponent_finished)
 		raceManager.opponent_set_rank.connect(shipScene.on_opponent_set_rank)
+		raceManager.race_reset.connect(shipScene.on_race_reset)
 		raceManager.add_opponent(shipScene)
 	
+	on_race_reset()
 	MusicController.playany()
+	raceManager.race_warmup()
+
+func on_race_reset():
+	# FIXME: don't necessarily place ships depending on their player id
+	for player in Globals.players:
+		player["scene"].global_transform = shipStarts[player.id]
+		player["scene"].global_transform.origin += Vector3(0, 0.1, 0)
+
+func on_race_ended():
+	%QuitRestart.visible = true
+	%Restart.grab_focus()
 
 # Given a `parent` container (usually a VBoxContainer),
 # create a child grid for `count` subviewports.
@@ -117,3 +137,13 @@ func setup_subviewports(parent, count, separation = 0):
 			# Normal case : add SubViewportContainer to the grid
 			grid.add_child(subvcont)
 	return subviewports
+
+func _on_quit_pressed():
+	# Reset the list of joined players
+	for p in PlayerManager.get_player_indexes():
+		PlayerManager.leave(p)
+	get_tree().change_scene_to_file("res://scenes/menus/main_menu.tscn")
+
+func _on_restart_pressed():
+	$QuitRestart.visible = false
+	raceManager.reset_race()
