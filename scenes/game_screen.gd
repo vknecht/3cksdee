@@ -4,6 +4,7 @@ extends Node
 @onready var checkpointScene = load("res://scenes/scenery/checkpoint.tscn")
 @onready var rm = load("res://scripts/race_manager.gd")
 var paths
+var pathfollows
 var starts
 var checkpoints
 var shipStarts
@@ -17,6 +18,7 @@ func _ready():
 	%QuitRestart.visible = false
 	add_child(levelScene)
 	paths = get_tree().get_nodes_in_group("Path")	# Only the first matters
+	pathfollows = get_tree().get_nodes_in_group("PathFollow") # idem
 	starts = get_tree().get_nodes_in_group("Start")	# idem
 	checkpoints = get_tree().get_nodes_in_group("Checkpoints")
 	# Compute ships start positions along the center of the track
@@ -26,6 +28,7 @@ func _ready():
 	raceManager = rm.new()
 	raceManager.race_reset.connect(self.on_race_reset)
 	raceManager.race_ended.connect(self.on_race_ended)
+	raceManager.opponent_finished.connect(self.on_opponent_finished)
 	add_child(raceManager)
 	
 	# Set splitscreen grid separation pixels according to the Options setting
@@ -65,6 +68,7 @@ func _ready():
 		raceManager.opponent_set_rank.connect(shipScene.on_opponent_set_rank)
 		raceManager.race_reset.connect(shipScene.on_race_reset)
 		raceManager.add_opponent(shipScene)
+		raceManager.race_reset.connect(shipScene.hud.on_race_reset)
 	
 	on_race_reset()
 	MusicController.playany()
@@ -75,6 +79,17 @@ func on_race_reset():
 	for player in Globals.players:
 		player["scene"].global_transform = shipStarts[player.id]
 		player["scene"].global_transform.origin += Vector3(0, 0.1, 0)
+		match player["scene"].get_parent().get_class():
+			"PathFollow3D":
+				# Reparent the ship to the subviewport, cleanup the path & pathfollow
+				var pf = player["scene"].get_parent()
+				var pathd = pf.get_parent()
+				var subvp = pathd.get_parent()
+				player["scene"].reparent(subvp)
+				player["scene"].set_owner(get_tree().edited_scene_root)
+				Globals.set_children_scene_root(player["scene"])
+				pf.queue_free()
+				pathd.queue_free()
 
 func on_race_ended():
 	%QuitRestart.visible = true
@@ -147,3 +162,19 @@ func _on_quit_pressed():
 func _on_restart_pressed():
 	$QuitRestart.visible = false
 	raceManager.reset_race()
+
+func on_opponent_finished(shipNode: Node3D, _raceTime: int, _lapTimes: Array):
+	# Set ship on "autopilot" along the track's path
+	var pathdup = paths[0].duplicate()
+	var pffinished = pathfollows[0].duplicate()
+	pathdup.add_child(pffinished)
+	var subv = shipNode.get_parent()
+	subv.add_child(pathdup)
+	# Compute current ship position as a progress value of the pathfollow
+	pffinished.progress = Globals.find_closest_curve_offset(pathdup, shipNode.global_position)
+	# FIXME: tween the ship's orientation to be aligned with the path
+	# Reparent the ship to the pathfollow
+	shipNode.reparent(pffinished)
+	shipNode.set_owner(get_tree().edited_scene_root)
+	Globals.set_children_scene_root(shipNode)
+	shipNode.pffinished = pffinished

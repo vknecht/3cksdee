@@ -60,6 +60,8 @@ func _ready():
 	add_child(sfxPlayer)
 
 func _process(_delta):
+	if raceStatus == RaceState.ENDED:
+		return
 	if raceStatus == RaceState.STARTED:
 		raceCurrentTime = Time.get_ticks_usec() - raceStartTime
 	# TODO: send race time
@@ -185,18 +187,6 @@ func reset_race():
 		opp.lap = 1
 		opp.nextcp = 1
 		opp.laptimes = []
-		# FIXME: Reparenting should not be in race_manager.gd
-		match opp.node.get_parent().get_class():
-			"PathFollow3D":
-				# Reparent the ship to the subviewport, cleanup the path & pathfollow
-				var pf = opp.node.get_parent()
-				var pathd = pf.get_parent()
-				var subvp = pathd.get_parent()
-				opp.node.reparent(subvp)
-				opp.node.set_owner(get_tree().edited_scene_root)
-				Globals.set_children_scene_root(opp.node)
-				pf.queue_free()
-				pathd.queue_free()
 	emit_signal("race_reset")
 	await get_tree().create_timer(1.0).timeout
 	race_warmup()
