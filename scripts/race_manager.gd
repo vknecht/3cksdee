@@ -40,11 +40,11 @@ func add_checkpoint(path: Path3D, node : Node3D):
 	# Compute some basic timeout delay based on offset difference with previous CP
 	var timeout = 0.0
 	if idx > 0: # FIXME: 1st CP / startline special case...
-		timeout = (offset - checkpoints[idx - 1]["offset"])  / 4.0
+		timeout = (offset - checkpoints[idx - 1]["offset"])  / (2.0 + Globals.difficulty)
 		# Set 1st CP / startline timeout as if the current CP is the last one
 		# FIXME: don't require that 1st CP / startline has the smallest offset
 		checkpoints[0]["timeout"] = \
-			(pathLength - offset + checkpoints[0]["offset"]) / 4.0
+			(pathLength - offset + checkpoints[0]["offset"]) / (2.0 + Globals.difficulty)
 	checkpoints.push_back({ "node": node, "idx": idx, "offset": offset, "timeout": timeout })
 	checkpoints.sort_custom(func(a, b): return a["offset"] < b["offset"])
 	if idx == 0:
