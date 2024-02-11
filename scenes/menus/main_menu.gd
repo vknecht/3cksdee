@@ -45,6 +45,7 @@ func _ready():
 	version.text = ProjectSettings.get_setting("application/config/version")
 	godotver.text =  "Godot " + Engine.get_version_info().string
 	%OptionsMenu.visible = false
+	%CreditsMenu.visible = false
 	%MultiLocal.grab_focus()
 
 func _process(_delta):
@@ -60,9 +61,19 @@ func _on_options_pressed():
 	%OptionsMenu.visible = true
 	%DoneOptions.grab_focus()
 
+func _on_credits_pressed():
+	%Buttons.visible = false
+	%CreditsMenu.visible = true
+	%DoneCredits.grab_focus()
+
 func _on_exit_pressed():
 	get_tree().root.propagate_notification(NOTIFICATION_WM_CLOSE_REQUEST)
 	get_tree().quit()
+
+func _on_done_credits_pressed():
+	%CreditsMenu.visible = false
+	%Buttons.visible = true
+	%Credits.grab_focus()
 
 ############# Options menu #############
 

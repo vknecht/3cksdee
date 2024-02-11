@@ -19,7 +19,7 @@ layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer"]
 layout_mode = 2
-theme_override_constants/separation = 128
+theme_override_constants/separation = 96
 
 [node name="LogoLabel" type="Label" parent="HBoxContainer/VBoxContainer"]
 layout_mode = 2
@@ -30,7 +30,7 @@ text = "3cskdee"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 64
+theme_override_constants/separation = 48
 alignment = 1
 
 [node name="MultiLocal" type="Button" parent="HBoxContainer/VBoxContainer/Buttons"]
@@ -38,24 +38,30 @@ unique_name_in_owner = true
 layout_mode = 2
 focus_neighbor_bottom = NodePath("../Options")
 focus_next = NodePath("../Options")
-theme_override_font_sizes/font_size = 64
+theme_override_font_sizes/font_size = 48
 text = "Race"
 
 [node name="Options" type="Button" parent="HBoxContainer/VBoxContainer/Buttons"]
 unique_name_in_owner = true
 layout_mode = 2
 focus_neighbor_top = NodePath("../MultiLocal")
-focus_neighbor_bottom = NodePath("../Exit")
-focus_next = NodePath("../Exit")
+focus_neighbor_bottom = NodePath("../Credits")
+focus_next = NodePath("../Credits")
 focus_previous = NodePath("../MultiLocal")
-theme_override_font_sizes/font_size = 64
+theme_override_font_sizes/font_size = 48
 text = "Options"
+
+[node name="Credits" type="Button" parent="HBoxContainer/VBoxContainer/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Credits"
 
 [node name="Exit" type="Button" parent="HBoxContainer/VBoxContainer/Buttons"]
 layout_mode = 2
-focus_neighbor_top = NodePath("../Options")
-focus_previous = NodePath("../Options")
-theme_override_font_sizes/font_size = 64
+focus_neighbor_top = NodePath("../Credits")
+focus_previous = NodePath("../Credits")
+theme_override_font_sizes/font_size = 48
 text = "Quit"
 
 [node name="Versions" type="VBoxContainer" parent="HBoxContainer/VBoxContainer"]
@@ -80,6 +86,7 @@ size_flags_horizontal = 3
 
 [node name="OptionsMenu" type="Control" parent="HBoxContainer/CenterContainer"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
 
 [node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/CenterContainer/OptionsMenu"]
@@ -111,6 +118,10 @@ text = "Show FPS"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 2
+focus_neighbor_top = NodePath("../../DoneOptions")
+focus_neighbor_bottom = NodePath("../Fullscreen")
+focus_next = NodePath("../Fullscreen")
+focus_previous = NodePath("../../DoneOptions")
 
 [node name="FullscreenLabel" type="Label" parent="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer"]
 layout_mode = 2
@@ -253,16 +264,74 @@ size_flags_horizontal = 0
 
 [node name="DoneOptions" type="Button" parent="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 0)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 8
 focus_neighbor_top = NodePath("../GridContainer/DebugFinish")
+focus_neighbor_bottom = NodePath("../GridContainer/FPS")
+focus_next = NodePath("../GridContainer/FPS")
 focus_previous = NodePath("../GridContainer/DebugFinish")
+theme_override_font_sizes/font_size = 32
+text = "Done"
+
+[node name="CreditsMenu" type="Control" parent="HBoxContainer/CenterContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer/CenterContainer/CreditsMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -250.0
+offset_top = -350.0
+offset_right = 479.0
+offset_bottom = 473.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 32
+
+[node name="CreditsText" type="RichTextLabel" parent="HBoxContainer/CenterContainer/CreditsMenu/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/bold_italics_font_size = 28
+theme_override_font_sizes/italics_font_size = 28
+theme_override_font_sizes/mono_font_size = 28
+theme_override_font_sizes/normal_font_size = 28
+theme_override_font_sizes/bold_font_size = 28
+bbcode_enabled = true
+text = "Models:
+  Apex by rafta (CC BY-NC 4.0)
+  Molnia by TuppsM (CC BY 4.0)
+
+Music by Nicci Spray (CC BY-NC-ND 2.5)
+
+Sounds by Joep Vanlier (CC BY-NC 2.5)
+Timeout sound by Flash_Shumway (CC 0 1.0)
+
+Godot Addons:  (MIT licence)
+  Action Icon by KoBeWi
+  Multiplayer Input by matjlars
+
+Coding: (GNU GPLv3)
+  Vincent Knecht
+
+Reboot of Ecksdee \"Race & Destroy\" (2005-2009)
+Salut à Toi Genjix ! Salut à Toi Orogor !"
+fit_content = true
+
+[node name="DoneCredits" type="Button" parent="HBoxContainer/CenterContainer/CreditsMenu/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(128, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
 theme_override_font_sizes/font_size = 32
 text = "Done"
 
 [connection signal="pressed" from="HBoxContainer/VBoxContainer/Buttons/MultiLocal" to="." method="_on_multi_local_pressed"]
 [connection signal="pressed" from="HBoxContainer/VBoxContainer/Buttons/Options" to="." method="_on_options_pressed"]
+[connection signal="pressed" from="HBoxContainer/VBoxContainer/Buttons/Credits" to="." method="_on_credits_pressed"]
 [connection signal="pressed" from="HBoxContainer/VBoxContainer/Buttons/Exit" to="." method="_on_exit_pressed"]
 [connection signal="toggled" from="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer/FPS" to="." method="_on_fps_toggled"]
 [connection signal="toggled" from="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer/Fullscreen" to="." method="_on_fullscreen_toggled"]
@@ -275,3 +344,4 @@ text = "Done"
 [connection signal="value_changed" from="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer/SFXVolume" to="." method="_on_sfx_volume_value_changed"]
 [connection signal="toggled" from="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/GridContainer/DebugFinish" to="." method="_on_debug_finish_toggled"]
 [connection signal="pressed" from="HBoxContainer/CenterContainer/OptionsMenu/VBoxContainer/DoneOptions" to="." method="_on_done_pressed"]
+[connection signal="pressed" from="HBoxContainer/CenterContainer/CreditsMenu/VBoxContainer/DoneCredits" to="." method="_on_done_credits_pressed"]
