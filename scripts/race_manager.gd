@@ -30,7 +30,6 @@ func add_opponent(node: Node3D): #(id : int):
 		nextcp = 0
 	opponents.push_back({ "node": node, "id": node.player_id, "lap": 1,
 						  "state": OpponentState.WAITING, "nextcp": nextcp, "laptimes": [] })
-	node.warmup.connect(on_opponent_warmup)
 	node.failed.connect(on_opponent_failed)
 
 func add_checkpoint(path: Path3D, node : Node3D):
@@ -124,21 +123,6 @@ func on_startline_passed(cpnode: Node3D, id: int):
 		opponents[id].lap += 1
 		on_checkpoint_passed(cpnode, id)
 		print("RaceManager: startline passed, lap %s" % [opponents[id].lap])
-
-func on_opponent_warmup(node: Node3D):
-	if opponents[node.player_id].state == OpponentState.WAITING:
-		print("RaceManager: WARMUP %s" % [node])
-		opponents[node.player_id].state = OpponentState.WARMUP
-		# Set timeout for first checkpoint, without starting timer
-		emit_signal("opponent_set_timeout", node, checkpoints[1].timeout, false)
-	else:
-		return
-	for opp in opponents:
-		if opp.state != OpponentState.WARMUP:
-			return
-	
-	print("RaceManager: All opponents in WARMUP, get READY !")
-	race_ready()
 
 func race_warmup():
 	print("RaceManager: race_warmup !")

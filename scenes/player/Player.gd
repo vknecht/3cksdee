@@ -1,6 +1,6 @@
 extends RigidBody3D
 
-signal warmup(node)
+
 signal failed(node, reason)
 
 var input
@@ -120,6 +120,8 @@ func on_opponent_start_timer():
 	print("Player %s : on_opponent_start_timer" % [player_id])
 	timer.start()
 	racestarted = true
+	racefailed = false
+	racefinished = false
 	
 func on_opponent_finished(shipNode: Node3D, raceTime: int, lapTimes: Array):
 	if shipNode.player_id == player_id:
