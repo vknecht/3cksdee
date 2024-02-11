@@ -12,14 +12,14 @@ var player_id
 @onready var timer = Timer.new()
 @onready var sfxTimeout = preload("res://assets/sounds/114497__flash_shumway__piep.mp3")
 
+enum RacingStatus { WAITING, RACING, FAILED, FINISHED }
+@onready var status = RacingStatus.WAITING
+
 var pffinished
-var racestarted = false
-var racefinished = false
-var racefailed = false
 
 var speed = 10000 # 15000
 var turn_speed = 50 # 25 # 50 #200
-var height = 0.08
+var height = 0.1 #0.08
 
 var turn
 var accel
@@ -40,10 +40,14 @@ func _ready():
 	timer.connect("timeout", _on_timer_timeout)
 
 func _process(delta):
-	if racefinished:
-		pffinished.progress_ratio += 0.03 * delta
-	elif racestarted:
-		hud.update_timeout(timer.time_left)
+	match status:
+		RacingStatus.FINISHED:
+			pffinished.progress_ratio += 0.03 * delta
+		RacingStatus.RACING:
+			hud.update_timeout(timer.time_left)
+			if timer.time_left < 10.0 and not $TimeoutSound.playing:
+				$TimeoutSound.play(4.6)
+	
 	if input.is_action_just_pressed("start"):
 		# TODO: implement pause menu
 		pass
@@ -51,29 +55,35 @@ func _process(delta):
 		for p in PlayerManager.get_player_indexes():
 			PlayerManager.leave(p)
 		get_tree().change_scene_to_file("res://scenes/menus/main_menu.tscn")
-	if racestarted and not racefailed and not racefinished and timer.time_left < 10.0 and not $TimeoutSound.playing:
-		$TimeoutSound.play(4.6)
 
-func _physics_process(_delta):
+func _physics_process(delta):
 	if input.is_action_just_pressed("reset"):
+		print("player %d: just pressed reset action!!!" % player_id)
 		global_transform = Globals.find_closest_curve_transform(path[0], global_transform.origin)
 		global_transform.origin += global_basis.y * height
 		linear_velocity = Vector3(0, 0, 0)
 		angular_velocity = Vector3(0, 0, 0)
+	
+	accel = input.get_action_strength("accelerate") - input.get_action_strength("brake")
+	turn = Vector2(input.get_action_strength("right") - input.get_action_strength("left"), 0)
+
+	match status:
+		RacingStatus.RACING:
+			apply_central_force(-global_transform.basis.z * accel * speed * delta)
+			apply_torque(-global_transform.basis.y * turn.sign().x * turn.length() * turn_speed * delta)
+			#apply_torque(-global_transform.basis.z * turn.sign().x * turn.length() * turn_speed * speed * state.step / 30000)
+		_:
+			return
+	
 	if input.is_action_just_pressed("turbo"):
 			speed *= 3
 	if input.is_action_just_released("turbo"):
 			speed /= 3
 
-func _integrate_forces(state):
-	accel = input.get_action_strength("accelerate") - input.get_action_strength("brake")
-	turn = Vector2(input.get_action_strength("right") - input.get_action_strength("left"), 0)
-	
-	if racefinished or racefailed: return
-	if racestarted:
-		apply_central_force(-global_transform.basis.z * accel * speed * state.step)
-		apply_torque(-global_transform.basis.y * turn.sign().x * turn.length() * turn_speed * state.step)
-		#apply_torque(-global_transform.basis.z * turn.sign().x * turn.length() * turn_speed * speed * state.step / 30000)
+func _integrate_forces(_state):
+	match status:
+		RacingStatus.FAILED, RacingStatus.FINISHED:
+			return
 	
 	var posupv = Globals.find_closest_abs_posrot(path[0], position)
 	var vec = Vector2(posupv[1].x, posupv[1].y)
@@ -100,11 +110,11 @@ func _on_body_entered(_body):
 	$CollisionSound.play()
 	if Globals.do_vibrate:
 		input.start_vibration(0.2, 0.8, 0.1)
-	#linear_velocity = Vector3(0, 0, 0)
-	#angular_velocity = Vector3(0, 0, 0)
+	linear_velocity = Vector3(0, 0, 0)
+	angular_velocity = Vector3(0, 0, 0)
 
 func _on_timer_timeout():
-	racefailed = true
+	status = RacingStatus.FAILED
 	emit_signal("failed", self, player_id, "timeout")
 
 func on_opponent_set_timeout(shipNode: Node3D, value: float, autostart: bool):
@@ -119,9 +129,7 @@ func on_opponent_set_timeout(shipNode: Node3D, value: float, autostart: bool):
 func on_opponent_start_timer():
 	print("Player %s : on_opponent_start_timer" % [player_id])
 	timer.start()
-	racestarted = true
-	racefailed = false
-	racefinished = false
+	status = RacingStatus.RACING
 	
 func on_opponent_finished(shipNode: Node3D, raceTime: int, lapTimes: Array):
 	if shipNode.player_id == player_id:
@@ -129,21 +137,20 @@ func on_opponent_finished(shipNode: Node3D, raceTime: int, lapTimes: Array):
 		timer.stop()
 		$TimeoutSound.stop()
 		# Show race and lap times
-		racefinished = true
+		status = RacingStatus.FINISHED
 		hud.show_results()
 		hud.update_racetime(raceTime)
 		for i in lapTimes.size():
 			hud.add_lap_time(lapTimes[i])
 
 func on_opponent_set_rank(shipNode: Node3D, rank: int, count: int, lap: int, laps: int):
-	if racefailed or racefinished:
-		return
+	match status:
+		RacingStatus.FAILED, RacingStatus.FINISHED:
+			return
 	if shipNode.player_id == player_id:
 		hud.update_rank(rank, count)
 		hud.update_laps(lap, laps)
 
 func on_race_reset():
 	# Reset race state on players side
-	racefinished = false
-	racestarted = false
-	racefailed = false
+	status = RacingStatus.WAITING
