@@ -21,6 +21,8 @@ func _ready():
 	#player_manager.player_left.connect(delete_player)
 	%LapCount.text = str(int(%LapCountSlider.value))
 	Globals.lap_count = int(%LapCountSlider.value)
+	%Difficulty.text = "Easy"
+	Globals.difficulty = int(%DifficultySlider.value)
 
 func _process(_delta):
 	if waitForPlayers:
@@ -78,3 +80,11 @@ func _on_back_pressed():
 func _on_lap_count_slider_value_changed(value):
 	%LapCount.text = str(int(value))
 	Globals.lap_count = int(value)
+
+
+func _on_difficulty_slider_value_changed(value):
+	match int(value):
+		1: %Difficulty.text = "Easy"
+		2: %Difficulty.text = "Medium"
+		3: %Difficulty.text = "Hard"
+	Globals.difficulty = int(value)

@@ -3,6 +3,7 @@ extends Node
 var players = []
 var level
 var lap_count: int
+var difficulty
 
 var do_fps
 var separation = 0

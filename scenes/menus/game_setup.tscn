@@ -45,6 +45,35 @@ theme_override_constants/h_separation = 64
 theme_override_constants/v_separation = 32
 columns = 2
 
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer2/HBoxContainer/TrackVBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VBoxContainer2/HBoxContainer/TrackVBox/HBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+text = "Difficulty"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Difficulty" type="Label" parent="VBoxContainer2/HBoxContainer/TrackVBox/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 32
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="DifficultySlider" type="HSlider" parent="VBoxContainer2/HBoxContainer/TrackVBox/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = 1.0
+max_value = 3.0
+value = 1.0
+tick_count = 3
+
 [node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer2/HBoxContainer/TrackVBox"]
 layout_mode = 2
 
@@ -205,6 +234,7 @@ theme_override_font_sizes/font_size = 32
 disabled = true
 text = "Done"
 
+[connection signal="value_changed" from="VBoxContainer2/HBoxContainer/TrackVBox/HBoxContainer2/DifficultySlider" to="." method="_on_difficulty_slider_value_changed"]
 [connection signal="value_changed" from="VBoxContainer2/HBoxContainer/TrackVBox/HBoxContainer/LapCountSlider" to="." method="_on_lap_count_slider_value_changed"]
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer/JoinVBox/HBoxContainer/Wait" to="." method="_on_wait_pressed"]
 [connection signal="pressed" from="VBoxContainer2/HBoxContainer/JoinVBox/HBoxContainer/Ready" to="." method="_on_ready_pressed"]
