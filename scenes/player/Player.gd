@@ -17,9 +17,10 @@ enum RacingStatus { WAITING, RACING, FAILED, FINISHED }
 
 var pffinished
 
-var speed = 10000 # 15000
-var turn_speed = 50 # 25 # 50 #200
-var height = 0.1 #0.08
+var speed_max = 20000
+var speed = speed_max
+var turn_speed = 100
+var height = 0.1
 
 var turn
 var accel
@@ -72,13 +73,10 @@ func _physics_process(delta):
 			apply_central_force(-global_transform.basis.z * accel * speed * delta)
 			apply_torque(-global_transform.basis.y * turn.sign().x * turn.length() * turn_speed * delta)
 			#apply_torque(-global_transform.basis.z * turn.sign().x * turn.length() * turn_speed * speed * state.step / 30000)
+			if input.is_action_just_pressed("turbo"): speed = speed_max * 1.5
+			if input.is_action_just_released("turbo"): speed = speed_max
 		_:
 			return
-	
-	if input.is_action_just_pressed("turbo"):
-			speed *= 3
-	if input.is_action_just_released("turbo"):
-			speed /= 3
 
 func _integrate_forces(_state):
 	match status:
@@ -130,7 +128,7 @@ func on_opponent_start_timer():
 	print("Player %s : on_opponent_start_timer" % [player_id])
 	timer.start()
 	status = RacingStatus.RACING
-	
+
 func on_opponent_finished(shipNode: Node3D, raceTime: int, lapTimes: Array):
 	if shipNode.player_id == player_id:
 		print("player %s finished: raceTime = %s usec, laps : %s" % [player_id, raceTime, lapTimes])
