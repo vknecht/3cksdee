@@ -172,7 +172,6 @@ func on_opponent_finished(shipNode: Node3D, _raceTime: int, _lapTimes: Array):
 	subv.add_child(pathdup)
 	# Compute current ship position as a progress value of the pathfollow
 	pffinished.progress = Globals.find_closest_curve_offset(pathdup, shipNode.global_position)
-	# FIXME: tween the ship's orientation to be aligned with the path
 	# Reparent the ship to the pathfollow
 	shipNode.reparent(pffinished)
 	shipNode.set_owner(get_tree().edited_scene_root)

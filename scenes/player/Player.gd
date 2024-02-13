@@ -140,6 +140,10 @@ func on_opponent_finished(shipNode: Node3D, raceTime: int, lapTimes: Array):
 		hud.update_racetime(raceTime)
 		for i in lapTimes.size():
 			hud.add_lap_time(lapTimes[i])
+		# Align ship orientation along the path
+		var t: Transform3D = Globals.find_closest_curve_transform(path[0], global_position)
+		var tween = get_tree().create_tween()
+		tween.tween_property(self, "global_basis", t.basis, 0.2)
 
 func on_opponent_set_rank(shipNode: Node3D, rank: int, count: int, lap: int, laps: int):
 	match status:
