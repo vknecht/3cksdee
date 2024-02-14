@@ -78,7 +78,7 @@ func _physics_process(delta):
 		_:
 			return
 
-func _integrate_forces(_state):
+func _integrate_forces(state):
 	match status:
 		RacingStatus.FAILED, RacingStatus.FINISHED:
 			return
@@ -86,16 +86,21 @@ func _integrate_forces(_state):
 	var posupv = Globals.find_closest_abs_posrot(path[0], position)
 	var vec = Vector2(posupv[1].x, posupv[1].y)
 	var angle = vec.angle() - rotation.z
-	# Clamp rotation around forward axis
-	clampf(rotation.z, angle - PI / 8, angle + PI / 8)
+	
 	### Align ship's Y with the curve's Y (maybe only when left/right are released ?)
-	###if turn.length() == 0 and angular_velocity.abs().z < 0.2:
-	if angular_velocity.abs().z < 0.2:
+	if turn.length() == 0 and angular_velocity.abs().z < 0.2:
+	#if angular_velocity.abs().z < 0.2:
 		var new_transform = Globals.align_with_y(global_transform, posupv[1])
 		var a = Quaternion(global_transform.basis)
 		var b = Quaternion(new_transform.basis)
-		var c = a.slerp(b, 0.25)
+		var c = a.slerp(b, 0.1)
 		global_transform.basis = Basis(c)
+	
+	# Fake rotation around forward axis when turning
+	if status == RacingStatus.RACING:
+		clampf(rotation.z, angle - PI / 8, angle + PI / 8)
+		rotation.z = lerp(rotation.z, -turn.sign().x * turn.length(), \
+						  turn_speed * state.step / 125.0)
 	
 	### Keep the ship at given height above the track
 	ray.force_raycast_update()
