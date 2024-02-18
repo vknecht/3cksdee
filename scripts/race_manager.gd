@@ -22,6 +22,9 @@ var laps: int = 3:
 var raceMode: int = RaceMode.TIMEATTACK:
 	set(new_value):
 		raceMode = new_value
+var do_debug_finish: bool = false:
+	set(new_value):
+		do_debug_finish = new_value
 var raceStartTime
 var raceCurrentTime
 
@@ -36,7 +39,7 @@ enum OpponentState { WAITING, WARMUP, RACING, FAILED, FINISHED }
 
 func add_opponent(node: Node3D): #(id : int):
 	var nextcp = 1
-	if Globals.do_debug_finish:
+	if do_debug_finish:
 		nextcp = 0
 	opponents.push_back({ "node": node, "id": node.player_id, "lap": 1,
 						  "state": OpponentState.WAITING, "nextcp": nextcp, "laptimes": [] })
@@ -46,7 +49,7 @@ func add_checkpoint(path: Path3D, node : Node3D):
 	levelPath = path
 	pathLength = path.curve.get_baked_length()
 	var idx = checkpoints.size()
-	var offset = Globals.find_closest_curve_offset(path, node.global_position)
+	var offset = find_closest_curve_offset(path, node.global_position)
 	# Compute some basic timeout delay based on offset difference with previous CP
 	var timeout = 0.0
 	if idx > 0: # FIXME: 1st CP / startline special case...
@@ -63,7 +66,7 @@ func add_checkpoint(path: Path3D, node : Node3D):
 		node.passed.connect(on_checkpoint_passed)
 
 func _ready():
-	if Globals.do_debug_finish:
+	if do_debug_finish:
 		laps = 1
 	sfxPlayer.bus = &"SFX"
 	add_child(sfxPlayer)
@@ -77,7 +80,7 @@ func _process(_delta):
 	# Compute rankings
 	var rankList = []
 	for opp in opponents:
-		var offset = Globals.find_closest_curve_offset(levelPath, opp["node"].global_transform.origin)
+		var offset = find_closest_curve_offset(levelPath, opp["node"].global_transform.origin)
 		var rank = opp["lap"] * pathLength + offset
 		rankList.push_back({ "node": opp["node"], "rank": rank, "lap": opp["lap"] })
 	rankList.sort_custom(func(a, b): return a["rank"] > b["rank"])
@@ -188,3 +191,14 @@ func reset_race():
 	emit_signal("race_reset")
 	await get_tree().create_timer(1.0).timeout
 	race_warmup()
+
+### Based on
+### https://medium.com/@oddlyshapeddog/finding-the-nearest-global-position-on-a-curve-in-godot-4-726d0c23defb
+func find_closest_curve_offset(lpath: Path3D, global_pos: Vector3):
+	var lcurve: Curve3D = lpath.curve
+	# transform the target position to local space
+	var path_transform: Transform3D = lpath.global_transform
+	var local_pos: Vector3 = global_pos * path_transform
+	# get the nearest offset on the curve
+	var offset: float = lcurve.get_closest_offset(local_pos)
+	return offset
