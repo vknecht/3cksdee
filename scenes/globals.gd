@@ -4,6 +4,7 @@ var players = []
 var level
 var lap_count: int
 var difficulty
+var race_mode: int
 
 var do_fps
 var separation = 0

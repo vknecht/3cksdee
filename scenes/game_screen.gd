@@ -26,6 +26,9 @@ func _ready():
 	shipStarts = Globals.find_curve_start_points(paths[0], starts[0].position, \
 												 Globals.players.size(), 0.5)
 	raceManager = rm.new()
+	raceManager.difficulty = Globals.difficulty
+	raceManager.laps = Globals.lap_count
+	raceManager.raceMode = Globals.race_mode
 	raceManager.race_reset.connect(self.on_race_reset)
 	raceManager.race_ended.connect(self.on_race_ended)
 	raceManager.opponent_finished.connect(self.on_opponent_finished)
@@ -67,6 +70,7 @@ func _ready():
 		raceManager.opponent_finished.connect(shipScene.on_opponent_finished)
 		raceManager.opponent_set_rank.connect(shipScene.on_opponent_set_rank)
 		raceManager.race_reset.connect(shipScene.on_race_reset)
+		raceManager.race_started.connect(shipScene.on_race_started)
 		raceManager.add_opponent(shipScene)
 		raceManager.race_reset.connect(shipScene.hud.on_race_reset)
 	

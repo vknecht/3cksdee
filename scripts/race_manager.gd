@@ -5,6 +5,7 @@ signal opponent_set_timeout(node, value, autostart)
 signal opponent_start_timer()
 signal opponent_set_rank(node, rank, count, lap, laps)
 signal race_reset()
+signal race_started()
 signal race_ended()
 
 @onready var raceStatus = RaceState.WAITING
@@ -12,7 +13,15 @@ signal race_ended()
 @onready var sfxReady = preload("res://assets/sounds/ready.ogg")
 @onready var sfxGo = preload("res://assets/sounds/go.ogg")
 
-var laps = Globals.lap_count
+var difficulty: int = 1:
+	set(new_value):
+		difficulty = new_value
+var laps: int = 3:
+	set(new_value):
+		laps = new_value
+var raceMode: int = RaceMode.TIMEATTACK:
+	set(new_value):
+		raceMode = new_value
 var raceStartTime
 var raceCurrentTime
 
@@ -21,6 +30,7 @@ var checkpoints = []
 var levelPath
 var pathLength
 
+enum RaceMode { CLASSIC, TIMEATTACK }
 enum RaceState { WAITING, STARTED, ENDED }
 enum OpponentState { WAITING, WARMUP, RACING, FAILED, FINISHED }
 
@@ -40,11 +50,11 @@ func add_checkpoint(path: Path3D, node : Node3D):
 	# Compute some basic timeout delay based on offset difference with previous CP
 	var timeout = 0.0
 	if idx > 0: # FIXME: 1st CP / startline special case...
-		timeout = (offset - checkpoints[idx - 1]["offset"])  / (2.0 + Globals.difficulty)
+		timeout = (offset - checkpoints[idx - 1]["offset"])  / (2.0 + difficulty)
 		# Set 1st CP / startline timeout as if the current CP is the last one
 		# FIXME: don't require that 1st CP / startline has the smallest offset
 		checkpoints[0]["timeout"] = \
-			(pathLength - offset + checkpoints[0]["offset"]) / (2.0 + Globals.difficulty)
+			(pathLength - offset + checkpoints[0]["offset"]) / (2.0 + difficulty)
 	checkpoints.push_back({ "node": node, "idx": idx, "offset": offset, "timeout": timeout })
 	checkpoints.sort_custom(func(a, b): return a["offset"] < b["offset"])
 	if idx == 0:
@@ -86,7 +96,8 @@ func on_checkpoint_passed(cpnode: Node3D, id: int):
 			else:
 				opponents[id].nextcp += 1
 			var nexttimeout = checkpoints[opponents[id].nextcp].timeout
-			emit_signal("opponent_set_timeout", opponents[id].node, nexttimeout, true)
+			if raceMode == RaceMode.TIMEATTACK:
+				emit_signal("opponent_set_timeout", opponents[id].node, nexttimeout, true)
 			print("RaceManager: Player %s : nextcp = %s, timeout %s" % [id, opponents[id].nextcp, nexttimeout])
 
 func on_startline_passed(cpnode: Node3D, id: int):
@@ -129,7 +140,8 @@ func race_warmup():
 	for opp in opponents:
 		opp.state = OpponentState.WARMUP
 		print("RaceManager: WARMUP %s" % opp.node)
-		emit_signal("opponent_set_timeout", opp.node, checkpoints[1].timeout, false)
+		if raceMode == RaceMode.TIMEATTACK:
+			emit_signal("opponent_set_timeout", opp.node, checkpoints[1].timeout, false)
 	await get_tree().create_timer(1.0).timeout
 	race_ready()
 
@@ -139,17 +151,19 @@ func race_ready():
 	# FIXME? Set a timer since 321 sound file exceeds 4 seconds
 	await get_tree().create_timer(4.0).timeout
 	sfxPlayer.stop()
-	race_started()
+	race_start()
 
-func race_started():
-	print("RaceManager: calling on_race_started")
+func race_start():
+	print("RaceManager: calling race_start")
 	raceStatus = RaceState.STARTED
 	raceStartTime = Time.get_ticks_usec()
 	for opp in opponents:
 		opp.state = OpponentState.RACING
 	sfxPlayer.stream = sfxGo
 	sfxPlayer.play()
-	emit_signal("opponent_start_timer")
+	emit_signal("race_started")
+	if raceMode == RaceMode.TIMEATTACK:
+		emit_signal("opponent_start_timer")
 
 func on_opponent_failed(node: Node3D, id: int, reason: String):
 	print("RaceManager: %s (id = %s) failed because %s !" % [node, id, reason])

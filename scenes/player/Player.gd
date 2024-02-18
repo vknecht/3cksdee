@@ -25,6 +25,8 @@ var height = 0.1
 var turn
 var accel
 
+var use_timer: bool = false
+
 func set_id(id: int):
 	player_id = id
 
@@ -45,9 +47,10 @@ func _process(delta):
 		RacingStatus.FINISHED:
 			pffinished.progress_ratio += 0.03 * delta
 		RacingStatus.RACING:
-			hud.update_timeout(timer.time_left)
-			if timer.time_left < 10.0 and not $TimeoutSound.playing:
-				$TimeoutSound.play(4.6)
+			if use_timer:
+				hud.update_timeout(timer.time_left)
+				if timer.time_left < 10.0 and not $TimeoutSound.playing:
+					$TimeoutSound.play(4.6)
 	
 	if input.is_action_just_pressed("start"):
 		# TODO: implement pause menu
@@ -131,8 +134,8 @@ func on_opponent_set_timeout(shipNode: Node3D, value: float, autostart: bool):
 
 func on_opponent_start_timer():
 	print("Player %s : on_opponent_start_timer" % [player_id])
+	use_timer = true
 	timer.start()
-	status = RacingStatus.RACING
 
 func on_opponent_finished(shipNode: Node3D, raceTime: int, lapTimes: Array):
 	if shipNode.player_id == player_id:
@@ -161,3 +164,6 @@ func on_opponent_set_rank(shipNode: Node3D, rank: int, count: int, lap: int, lap
 func on_race_reset():
 	# Reset race state on players side
 	status = RacingStatus.WAITING
+
+func on_race_started():
+	status = RacingStatus.RACING
