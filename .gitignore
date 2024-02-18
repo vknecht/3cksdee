@@ -1,2 +1,6 @@
 # Godot 4+ specific ignores
 .godot/
+# Exports
+3cksdee-macOS.zip
+3cksdee.exe
+3cksdee.x86_64
