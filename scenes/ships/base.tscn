@@ -1,0 +1,47 @@
+[gd_scene load_steps=6 format=3 uid="uid://bo66d8wktbj1h"]
+
+[ext_resource type="Script" path="res://scenes/player/Player.gd" id="1_gdtr2"]
+[ext_resource type="AudioStream" uid="uid://d331uslqyklh5" path="res://assets/sounds/thud.ogg" id="1_itntp"]
+[ext_resource type="AudioStream" uid="uid://e7dg11of3js1" path="res://assets/sounds/114497__flash_shumway__piep.mp3" id="2_t42oe"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_f423v"]
+friction = 5.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qla0c"]
+size = Vector3(0.238647, 0.081543, 0.656738)
+
+[node name="Base" type="RigidBody3D"]
+collision_layer = 2
+collision_mask = 2
+mass = 10.0
+physics_material_override = SubResource("PhysicsMaterial_f423v")
+gravity_scale = 0.0
+continuous_cd = true
+max_contacts_reported = 1
+contact_monitor = true
+linear_damp = 5.0
+angular_damp = 5.0
+script = ExtResource("1_gdtr2")
+
+[node name="Mesh" type="Node3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_qla0c")
+
+[node name="CameraGimbal" type="Node3D" parent="."]
+
+[node name="InnerGimbal" type="Node3D" parent="CameraGimbal"]
+
+[node name="Camera3D" type="Camera3D" parent="CameraGimbal/InnerGimbal"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0.45)
+
+[node name="RayCast3D" type="RayCast3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.006, 0)
+
+[node name="CollisionSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("1_itntp")
+bus = &"SFX"
+
+[node name="TimeoutSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_t42oe")
+bus = &"SFX"

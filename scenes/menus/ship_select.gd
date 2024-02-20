@@ -1,6 +1,6 @@
 extends MarginContainer
 
-@onready var shipList = Globals.scan("res://scenes/ships", "tscn")
+@onready var shipList = Globals.scan("res://scenes/ships/scenes", "tscn")
 @onready var shipKeys = shipList.keys()
 var gridElements = []
 var players_ready = []

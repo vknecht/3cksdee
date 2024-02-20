@@ -60,7 +60,7 @@ func _ready():
 	for player in Globals.players:
 		# Load player ship, instantiate, assign input device and subviewport
 		var shipName = PlayerManager.get_player_data(player.id, "ship")
-		var shipScene = load("res://scenes/ships/%s.tscn" % [shipName]).instantiate()
+		var shipScene = load("res://scenes/ships/scenes/%s.tscn" % [shipName]).instantiate()
 		player["scene"] = shipScene
 		shipScene.set_id(player.id)
 		shipScene.set_input(player.device)

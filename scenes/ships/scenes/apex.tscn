@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://6m1ruhh6w078"]
+
+[ext_resource type="PackedScene" uid="uid://bo66d8wktbj1h" path="res://scenes/ships/base.tscn" id="1_fv21v"]
+[ext_resource type="PackedScene" uid="uid://doq1x7suh32yx" path="res://assets/models/ships/apex/scene.gltf" id="2_kgsl4"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gcv78"]
+size = Vector3(0.225159, 0.0937805, 0.544067)
+
+[node name="Base" instance=ExtResource("1_fv21v")]
+
+[node name="Mesh" parent="." index="0"]
+transform = Transform3D(-0.1, 0, 8.74228e-09, 0, 0.1, 0, -8.74228e-09, 0, -0.1, 0, 0.048, 0)
+
+[node name="Sketchfab_Scene" parent="Mesh" index="0" instance=ExtResource("2_kgsl4")]
+
+[node name="CollisionShape3D" parent="." index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.000152588, 0.0489349, 0.00250244)
+shape = SubResource("BoxShape3D_gcv78")

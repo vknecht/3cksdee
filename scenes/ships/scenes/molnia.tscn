@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://dt12psevrekd8"]
+
+[ext_resource type="PackedScene" uid="uid://bo66d8wktbj1h" path="res://scenes/ships/base.tscn" id="1_0gsvq"]
+[ext_resource type="PackedScene" uid="uid://bruuxjgug77n0" path="res://assets/models/ships/molnia/scene.gltf" id="2_b3wmy"]
+
+[node name="Base" instance=ExtResource("1_0gsvq")]
+
+[node name="Mesh" parent="." index="0"]
+transform = Transform3D(-2.18557e-09, 0, -0.05, 0, 0.05, 0, 0.05, 0, -2.18557e-09, 0, -0.06, 0)
+
+[node name="Sketchfab_Scene" parent="Mesh" index="0" instance=ExtResource("2_b3wmy")]
+
+[node name="CollisionShape3D" parent="." index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.000183105, 0.0495605, 0.072998)
+
+[node name="Camera3D" parent="CameraGimbal/InnerGimbal" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0.75)

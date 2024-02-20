@@ -7,7 +7,8 @@ var input
 var player_id
 
 @onready var hud = preload("res://scenes/player/hud.tscn").instantiate()
-@onready var ray = $Ray
+@onready var ray = $RayCast3D
+@onready var cam_init_pos = $CameraGimbal.transform
 @onready var path = get_tree().get_nodes_in_group("Path")
 @onready var timer = Timer.new()
 @onready var sfxTimeout = preload("res://assets/sounds/114497__flash_shumway__piep.mp3")
@@ -26,6 +27,8 @@ var turn
 var accel
 
 var use_timer: bool = false
+
+var cam_rot_speed = PI / 2
 
 func set_id(id: int):
 	player_id = id
@@ -46,6 +49,7 @@ func _process(delta):
 	match status:
 		RacingStatus.FINISHED:
 			pffinished.progress_ratio += 0.03 * delta
+			$CameraGimbal.rotate_object_local(Vector3.UP, cam_rot_speed * delta)
 		RacingStatus.RACING:
 			if use_timer:
 				hud.update_timeout(timer.time_left)
@@ -164,6 +168,7 @@ func on_opponent_set_rank(shipNode: Node3D, rank: int, count: int, lap: int, lap
 func on_race_reset():
 	# Reset race state on players side
 	status = RacingStatus.WAITING
+	$CameraGimbal.transform = cam_init_pos
 
 func on_race_started():
 	status = RacingStatus.RACING
