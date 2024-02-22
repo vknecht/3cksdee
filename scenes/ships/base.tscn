@@ -45,3 +45,8 @@ bus = &"SFX"
 [node name="TimeoutSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource("2_t42oe")
 bus = &"SFX"
+
+[node name="Timer" type="Timer" parent="."]
+one_shot = true
+
+[connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

@@ -10,7 +10,6 @@ var player_id
 @onready var ray = $RayCast3D
 @onready var cam_init_pos = $CameraGimbal.transform
 @onready var path = get_tree().get_nodes_in_group("Path")
-@onready var timer = Timer.new()
 @onready var sfxTimeout = preload("res://assets/sounds/114497__flash_shumway__piep.mp3")
 
 enum RacingStatus { WAITING, RACING, FAILED, FINISHED }
@@ -38,10 +37,6 @@ func _ready():
 	add_to_group("Opponents")
 	self.failed.connect(hud.failed)
 	add_child(hud)
-	timer.autostart = false
-	timer.one_shot = true
-	add_child(timer)
-	timer.connect("timeout", _on_timer_timeout)
 
 func _process(delta):
 	match status:
@@ -51,9 +46,9 @@ func _process(delta):
 			pffinished.progress_ratio += 0.03 * delta
 			$CameraGimbal.rotate_object_local(Vector3.UP, cam_rot_speed * delta)
 		RacingStatus.RACING:
-			if not timer.is_stopped():
-				hud.update_timeout(timer.time_left)
-				if timer.time_left < 10.0 and not $TimeoutSound.playing:
+			if not $Timer.is_stopped():
+				hud.update_timeout($Timer.time_left)
+				if $Timer.time_left < 10.0 and not $TimeoutSound.playing:
 					$TimeoutSound.play(4.6)
 	
 	if input.is_action_just_pressed("start"):
@@ -131,19 +126,19 @@ func on_opponent_set_timeout(shipNode: Node3D, value: float, autostart: bool):
 	if shipNode.player_id == player_id:
 		$TimeoutSound.stop()
 		print("Player %s : on_opponent_set_timeout (%s sec)" % [player_id, value])
-		timer.autostart = autostart
-		timer.wait_time = value
+		$Timer.autostart = autostart
+		$Timer.wait_time = value
 		if autostart:
-			timer.start()
+			$Timer.start()
 
 func on_opponent_start_timer():
 	print("Player %s : on_opponent_start_timer" % [player_id])
-	timer.start()
+	$Timer.start()
 
 func on_opponent_finished(shipNode: Node3D, raceTime: int, lapTimes: Array):
 	if shipNode.player_id == player_id:
 		print("player %s finished: raceTime = %s usec, laps : %s" % [player_id, raceTime, lapTimes])
-		timer.stop()
+		$Timer.stop()
 		$TimeoutSound.stop()
 		# Show race and lap times
 		status = RacingStatus.FINISHED
