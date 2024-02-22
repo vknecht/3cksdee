@@ -26,8 +26,6 @@ var height = 0.1
 var turn
 var accel
 
-var use_timer: bool = false
-
 var cam_rot_speed = PI / 2
 
 func set_id(id: int):
@@ -51,7 +49,7 @@ func _process(delta):
 			pffinished.progress_ratio += 0.03 * delta
 			$CameraGimbal.rotate_object_local(Vector3.UP, cam_rot_speed * delta)
 		RacingStatus.RACING:
-			if use_timer:
+			if not timer.is_stopped():
 				hud.update_timeout(timer.time_left)
 				if timer.time_left < 10.0 and not $TimeoutSound.playing:
 					$TimeoutSound.play(4.6)
@@ -138,7 +136,6 @@ func on_opponent_set_timeout(shipNode: Node3D, value: float, autostart: bool):
 
 func on_opponent_start_timer():
 	print("Player %s : on_opponent_start_timer" % [player_id])
-	use_timer = true
 	timer.start()
 
 func on_opponent_finished(shipNode: Node3D, raceTime: int, lapTimes: Array):
