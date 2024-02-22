@@ -45,6 +45,8 @@ func _ready():
 
 func _process(delta):
 	match status:
+		RacingStatus.FAILED:
+			$CameraGimbal.rotate_object_local(Vector3.UP, cam_rot_speed * delta)
 		RacingStatus.FINISHED:
 			pffinished.progress_ratio += 0.03 * delta
 			$CameraGimbal.rotate_object_local(Vector3.UP, cam_rot_speed * delta)
